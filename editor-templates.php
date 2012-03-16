@@ -5,10 +5,10 @@
  */
 /*
 Plugin Name: Editor Templates
-Plugin URI: http://www.warna.info/
+Plugin URI: http://editor-templates.warna.info/
 Description: 投稿タイプ毎に専用の投稿テンプレートを作成できます。
 Author: jim912
-Version: 0.0.1beta
+Version: 0.0.2
 Author URI: http://www.warna.info/
 */
 
@@ -66,7 +66,7 @@ class editor_template {
 		
 		if ( file_exists( EDITOR_TEMPLATE_DIR . '/' . $post_type . '.php' ) ) {
 			$this->load_template = EDITOR_TEMPLATE_DIR . '/' . $post_type . '.php';
-			add_action( 'add_meta_boxes'		, array( &$this, 'add_template_metabox' ), 10, 2 );
+			add_action( 'add_meta_boxes'		, array( &$this, 'add_template_metabox' ), 0, 2 );
 			
 			if ( file_exists( EDITOR_CSS_DIR . '/editor.common.css' ) ) {
 				wp_enqueue_style( 'editor-common', EDITOR_CSS_URL . '/editor.common.css' );
@@ -322,16 +322,28 @@ class editor_template {
 	}
 	
 	
-	function get_taxonomy_list( $html, $taxonomy, $terms, $type, $pad_string, $parent = 0 ,$pad = 0 ) {
+	function get_taxonomy_list( $html, $taxonomy, $terms, $atts, $parent = 0 ,$pad = 0 ) {
 		global $post;
 		
 		if ( isset( $terms[$parent] ) ) {
 			$name = $taxonomy == 'category' ? 'post_category[]' : 'tax_input['. $taxonomy.'][]';
-			$the_terms = get_the_terms( $post->ID, $taxonomy );
-			if ( $the_terms ) {
-				$the_terms = $this->get_opject_fields( $the_terms, 'term_id' );
-			} else {
+
+			if ( basename( $_SERVER['SCRIPT_NAME'] ) == 'post-new.php' ) {
 				$the_terms = array();
+				foreach ( (array)$atts['default'] as $default ) {
+					$default_term = get_term_by( 'name', $default, $taxonomy );
+					if ( $default_term ) {
+						$the_terms[] = $default_term->term_id;
+					}
+				}
+				
+			} else {
+				$the_terms = get_the_terms( $post->ID, $taxonomy );
+				if ( $the_terms ) {
+					$the_terms = $this->get_opject_fields( $the_terms, 'term_id' );
+				} else {
+					$the_terms = array();
+				}
 			}
 
 			foreach ( $terms[$parent] as $term ) {
@@ -344,24 +356,24 @@ class editor_template {
 					$checked = '';
 					$selected = '';
 				}
-				switch ( $type ) {
+				switch ( $atts['type'] ) {
 				case 'radio' :
 					$html .= '<li>' . "\n";
-					$html .= '<label for="' . esc_attr( $id ) . '"><input type="radio" name="' . esc_attr( $name ) . '" id="' . esc_attr( $id ) . '" value="' . esc_attr( $val ) . '"'. $checked .' />&nbsp;' . str_repeat( $pad_string, $pad ) . esc_html( $term->name ) . '</label>' . "\n";
+					$html .= '<label for="' . esc_attr( $id ) . '"><input type="radio" name="' . esc_attr( $name ) . '" id="' . esc_attr( $id ) . '" value="' . esc_attr( $val ) . '"'. $checked .' />&nbsp;' . str_repeat( $atts['pad_string'], $pad ) . esc_html( $term->name ) . '</label>' . "\n";
 					$html .= '</li>' . "\n";
 					break;
 				case 'select' :
 				case 'dropdown' :
-					$html .= '<option id="' . esc_attr( $id ) . '" value="' . esc_attr( $val ) . '"'. $selected .'>' . str_repeat( $pad_string, $pad ) . esc_html( $term->name ) . '</option>' . "\n";
+					$html .= '<option id="' . esc_attr( $id ) . '" value="' . esc_attr( $val ) . '"'. $selected .'>' . str_repeat( $atts['pad_string'], $pad ) . esc_html( $term->name ) . '</option>' . "\n";
 					break;
 				case 'checkbox' :
 				default :
 					$html .= '<li>' . "\n";
-					$html .= '<label for="' . esc_attr( $id ) . '"><input type="checkbox" name="' . esc_attr( $name ) . '" id="' . esc_attr( $id ) . '" value="' . esc_attr( $val ) . '"'. $checked .' />&nbsp;' . str_repeat( $pad_string, $pad ) . esc_html( $term->name ) . '</label>' . "\n";
+					$html .= '<label for="' . esc_attr( $id ) . '"><input type="checkbox" name="' . esc_attr( $name ) . '" id="' . esc_attr( $id ) . '" value="' . esc_attr( $val ) . '"'. $checked .' />&nbsp;' . str_repeat( $atts['pad_string'], $pad ) . esc_html( $term->name ) . '</label>' . "\n";
 					$html .= '</li>' . "\n";
 				}
 				if ( isset( $terms[$term->term_id] ) ) {
-					$html = $this->get_taxonomy_list( $html, $taxonomy, $terms, $type, $pad_string, $term->term_id, $pad + 1 );
+					$html = $this->get_taxonomy_list( $html, $taxonomy, $terms, $atts, $term->term_id, $pad + 1 );
 				}
 			}
 		}
@@ -412,6 +424,7 @@ function tpl_taxonomy_list( $args = array() ) {
 		'tabindex'		=> null,
 		'disabled'		=> null,
 		'pad_string'	=> '-',
+		'default'		=> ''
 	);
 	$atts = wp_parse_args( $args, $defaults );
 
@@ -437,7 +450,7 @@ function tpl_taxonomy_list( $args = array() ) {
 	$name = $atts['taxonomy'] == 'category' ? 'post_category[]' : 'tax_input['. $atts['taxonomy'] .'][]';
 	$default_value = is_taxonomy_hierarchical( $atts['taxonomy'] ) ? '0' : '';
 	$html_default = '<input type="hidden" name="' . $name . '" value="' . $default_value . '" />' . "\n";
-	$html = $editor_template->get_taxonomy_list( '', $atts['taxonomy'], $loop_terms, $atts['type'], $atts['pad_string'] );
+	$html = $editor_template->get_taxonomy_list( '', $atts['taxonomy'], $loop_terms, $atts );
 	if ( in_array( $atts['type'], array( 'select', 'dropdown' ) ) ) {
 		$taxonomy_obj = get_taxonomy( $atts['taxonomy'] );
 		$html = '<select name="' . $name . '" id="'. $atts['taxonomy'] .'-all">' . "\n" . '<option value="' . $default_value . '">' . sprintf( __( 'Select %s', 'editor-templates' ), $taxonomy_obj->labels->singular_name ) . "</option>\n" . $html . "\n</select>\n";
@@ -589,12 +602,17 @@ function tpl_custom( $args = array() ) {
 		'multiple'		=> false,
 		'wysiwyg'		=> false,
 		'media_buttons'	=> false,
-		'disabled'		=> null
+		'disabled'		=> null,
+		'default'		=> ''
 	);
 	$atts = wp_parse_args( $args, $defaults );
 	if ( ! $atts['meta_key'] ) { return; }
 	
 	$post_customs = get_post_custom( $post->ID );
+
+	if ( basename( $_SERVER['SCRIPT_NAME'] ) == 'post-new.php' && ! in_array( $atts['type'], array( 'file', 'image', 'media' ) ) ) {
+		$post_customs[$atts['meta_key']] = (array)$atts['default'];
+	}
 	$name = 'post_custom[' . $atts['meta_key'] . ']';
 	$id = 'post_custom-' . $atts['meta_key'];
 	
