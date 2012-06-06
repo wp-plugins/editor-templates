@@ -1,19 +1,19 @@
 <?php
 /**
  * @package Editor Templates
- * @version 0.0.1beta
+ * @version 0.0.3
  */
 /*
 Plugin Name: Editor Templates
 Plugin URI: http://editor-templates.warna.info/
 Description: 投稿タイプ毎に専用の投稿テンプレートを作成できます。
 Author: jim912
-Version: 0.0.2
+Version: 0.0.3
 Author URI: http://www.warna.info/
 */
 
 class editor_template {
-	var $version = '0.0.1beta';
+	var $version = '0.0.3';
 	
 	var $load_template;
 	
@@ -24,10 +24,6 @@ class editor_template {
 	function __construct() {
 		if ( is_admin() ) {
 			define( 'EDITOR_TEMPLATE_DIR', WP_CONTENT_DIR . '/editor-templates' );
-			define( 'EDITOR_CSS_DIR', EDITOR_TEMPLATE_DIR . '/css' );
-			define( 'EDITOR_CSS_URL', WP_CONTENT_URL .'/editor-templates/css' );
-			define( 'EDITOR_JS_DIR', EDITOR_TEMPLATE_DIR . '/js' );
-			define( 'EDITOR_JS_URL', WP_CONTENT_URL .'/editor-templates/js' );
 			add_action( 'load-post.php'							, array( &$this, 'check_editor_template' ) );
 			add_action( 'load-post-new.php'						, array( &$this, 'check_editor_template' ) );
 			add_action( 'admin_menu'							, array( &$this, 'add_setting_menu' ) );
@@ -53,7 +49,7 @@ class editor_template {
 
 
 	function check_editor_template() {
-		global $pagenow, $typenow;
+		global $pagenow, $typenow, $current_blog;
 
 		if ( $pagenow == 'post.php' ) {
 			if ( ! isset( $_GET['post'] ) ) { return; }
@@ -64,40 +60,64 @@ class editor_template {
 			$post_type = $typenow;
 		}
 		
-		if ( file_exists( EDITOR_TEMPLATE_DIR . '/' . $post_type . '.php' ) ) {
+		if ( is_multisite() && file_exists( EDITOR_TEMPLATE_DIR . '/' . $current_blog->blog_id . '/' . $post_type . '.php' ) ) {
+			define( 'EDITOR_CSS_DIR', EDITOR_TEMPLATE_DIR . '/' . $current_blog->blog_id . '/css' );
+			define( 'EDITOR_CSS_URL', WP_CONTENT_URL . '/editor-templates/' . $current_blog->blog_id . '/css' );
+			define( 'EDITOR_JS_DIR', EDITOR_TEMPLATE_DIR . '/' . $current_blog->blog_id . '/js' );
+			define( 'EDITOR_JS_URL', WP_CONTENT_URL . '/editor-templates/'. $current_blog->blog_id . '/js' );
+
+			$this->load_template = EDITOR_TEMPLATE_DIR . '/' . $current_blog->blog_id . '/' . $post_type . '.php';
+
+		} elseif ( file_exists( EDITOR_TEMPLATE_DIR . '/' . $post_type . '.php' ) ) {
+			define( 'EDITOR_CSS_DIR', EDITOR_TEMPLATE_DIR . '/css' );
+			define( 'EDITOR_CSS_URL', WP_CONTENT_URL .'/editor-templates/css' );
+			define( 'EDITOR_JS_DIR', EDITOR_TEMPLATE_DIR . '/js' );
+			define( 'EDITOR_JS_URL', WP_CONTENT_URL .'/editor-templates/js' );
+
 			$this->load_template = EDITOR_TEMPLATE_DIR . '/' . $post_type . '.php';
-			add_action( 'add_meta_boxes'		, array( &$this, 'add_template_metabox' ), 0, 2 );
 			
-			if ( file_exists( EDITOR_CSS_DIR . '/editor.common.css' ) ) {
-				wp_enqueue_style( 'editor-common', EDITOR_CSS_URL . '/editor.common.css' );
-			}
-			if ( file_exists( EDITOR_JS_DIR . '/editor.common.js' ) ) {
-				wp_enqueue_script( 'editor-common', EDITOR_JS_URL . '/editor.common.js', array(), 1, true );
-			}
 		} else {
 			$this->load_template = false;
 		}
 		
-		if ( $this->load_template && file_exists( EDITOR_CSS_DIR . '/' . $post_type . '.css' ) ) {
-
-			$this->load_css = EDITOR_CSS_URL . '/' . $post_type . '.css';
-			wp_enqueue_style( $post_type . '-editor-template', $this->load_css );
-		} else {
-			$this->load_css = false;
-		}
-
-		if ( $this->load_template && file_exists( EDITOR_JS_DIR . '/' . $post_type . '.js' ) ) {
-			$this->load_js = EDITOR_JS_URL . '/' . $post_type . '.js';
-			wp_enqueue_script( $post_type . '-editor-template', $this->load_js, array(), 1, true );
-		} else {
-			$this->load_js = false;
+		if ( $this->load_template ) {
+			add_action( 'add_meta_boxes'		, array( &$this, 'add_template_metabox' ), 0, 2 );
+	
+			if ( file_exists( EDITOR_CSS_DIR . '/editor.common.css' ) ) {
+				wp_enqueue_style( 'editor-common', EDITOR_CSS_URL . '/editor.common.css' );
+			}
+			
+			if ( file_exists( EDITOR_JS_DIR . '/editor.common.js' ) ) {
+				wp_enqueue_script( 'editor-common', EDITOR_JS_URL . '/editor.common.js', array(), 1, true );
+			}
+			
+			if ( file_exists( EDITOR_CSS_DIR . '/' . $post_type . '.css' ) ) {
+				$this->load_css = EDITOR_CSS_URL . '/' . $post_type . '.css';
+				wp_enqueue_style( $post_type . '-editor-template', $this->load_css );
+			} else {
+				$this->load_css = false;
+			}
+	
+			if ( file_exists( EDITOR_JS_DIR . '/' . $post_type . '.js' ) ) {
+				$this->load_js = EDITOR_JS_URL . '/' . $post_type . '.js';
+				wp_enqueue_script( $post_type . '-editor-template', $this->load_js, array(), 1, true );
+			} else {
+				$this->load_js = false;
+			}
 		}
 	}
 
 
+	function search_editor_template( $post_type
+	 ) {
+		if ( is_multisite() ) {
+
+		}
+	}
+
 	function add_template_metabox( $post_type, $post ) {
 		$post_type_object = get_post_type_object( $post_type );
-		add_meta_box( $post_type . '_meta_box', $post_type_object->label, array( &$this, 'editor_template_meta_box' ), $post_type, 'normal', 'high');
+		add_meta_box( $post_type . '_editor_box', $post_type_object->label, array( &$this, 'editor_template_meta_box' ), $post_type, 'normal', 'high');
 	}
 
 
@@ -113,7 +133,6 @@ class editor_template {
 	
 		if ( in_array( $post->post_status, array( 'draft', 'publish', 'protected', 'future' ) ) ) {
 			$post_custom = get_post_custom( (int)$post_id );
-			
 			
 			$post_data = stripslashes_deep( $_POST );
 			
@@ -685,6 +704,11 @@ function tpl_custom( $args = array() ) {
 		}
 		$html .= '<input type="hidden" id="' . esc_attr( $rel ) . '" name="' . esc_attr( $name ) . '" class="media" value="' . esc_attr( $value ) . '" />' . "\n";
 		$html .= '<br /><a class="template-media-upload button" href="JavaScript:void(0);" rel="' . esc_attr( $rel ) . '">' . __( 'Select' ) . '</a>' . "\n";
+		if ( $value ) {
+			$html .= '<label for="' . esc_attr( $rel ) . '-delete">';
+			$html .= '<input type="checkbox" id="' . esc_attr( $rel ) . '-delete" name="' . esc_attr( $name ) . '" value="0" />' . "\n";
+			$html .= __( 'Delete' ) . '</label>' . "\n";
+		}
 		break;
 	case 'text' :
 	default :
