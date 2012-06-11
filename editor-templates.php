@@ -1,19 +1,19 @@
 <?php
 /**
  * @package Editor Templates
- * @version 0.0.3
+ * @version 0.0.4
  */
 /*
 Plugin Name: Editor Templates
 Plugin URI: http://editor-templates.warna.info/
 Description: 投稿タイプ毎に専用の投稿テンプレートを作成できます。
 Author: jim912
-Version: 0.0.3
+Version: 0.0.4
 Author URI: http://www.warna.info/
 */
 
 class editor_template {
-	var $version = '0.0.3';
+	var $version = '0.0.4';
 	
 	var $load_template;
 	
@@ -108,13 +108,6 @@ class editor_template {
 	}
 
 
-	function search_editor_template( $post_type
-	 ) {
-		if ( is_multisite() ) {
-
-		}
-	}
-
 	function add_template_metabox( $post_type, $post ) {
 		$post_type_object = get_post_type_object( $post_type );
 		add_meta_box( $post_type . '_editor_box', $post_type_object->label, array( &$this, 'editor_template_meta_box' ), $post_type, 'normal', 'high');
@@ -177,7 +170,7 @@ class editor_template {
 			$post_type = $typenow;
 		}
 
-		if ( isset( $this->remove_meta_boxes[$post_type] ) ) {
+		if ( isset( $this->remove_meta_boxes[$post_type] ) && is_array( $this->remove_meta_boxes[$post_type] ) ) {
 			foreach ( array_keys( $this->remove_meta_boxes[$post_type] ) as $feature ) {
 				remove_post_type_support( $post_type, $feature );
 			}
@@ -197,7 +190,7 @@ class editor_template {
 				$map[$taxonomy] = 'tagsdiv-' . $taxonomy;
 			}
 		}
-		if ( isset( $this->remove_meta_boxes[$post_type] ) ) {
+		if ( isset( $this->remove_meta_boxes[$post_type] ) && is_array( $this->remove_meta_boxes[$post_type] ) ) {
 			foreach ( array_keys( $this->remove_meta_boxes[$post_type] ) as $feature ) {
 				if ( isset( $map[$feature] ) ) {
 					$context = $feature == 'slug' ? 'normal' : 'side';
