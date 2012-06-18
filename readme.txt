@@ -2,8 +2,8 @@
 Contributors: jim912
 Tags: edit, post, page, template 
 Requires at least: 3.3
-Tested up to: 3.4RC1
-Stable tag: 0.0.4
+Tested up to: 3.4
+Stable tag: 0.0.5
 
 You can customize the editing page by templates like themes.
 
@@ -20,6 +20,8 @@ You can customize the editing page by templates like themes.
  - Sample template file is bundled in plugin's "template-sample" directory.
 
 == Changelog ==
+* **0.0.5**
+ * Compatible up to WordPress 3.4
 
 * **0.0.4**
  * bugfix Warning Error.

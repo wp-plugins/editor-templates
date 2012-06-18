@@ -1,19 +1,19 @@
 <?php
 /**
  * @package Editor Templates
- * @version 0.0.4
+ * @version 0.0.5
  */
 /*
 Plugin Name: Editor Templates
 Plugin URI: http://editor-templates.warna.info/
 Description: 投稿タイプ毎に専用の投稿テンプレートを作成できます。
 Author: jim912
-Version: 0.0.4
+Version: 0.0.5
 Author URI: http://www.warna.info/
 */
 
 class editor_template {
-	var $version = '0.0.4';
+	var $version = '0.0.5';
 	
 	var $load_template;
 	
@@ -297,7 +297,7 @@ class editor_template {
 		<input type="hidden" name="remove_meta_boxes" value="0" />
 
 <?php foreach ( $post_types as $post_type ) : ?>
-		<h4 class="post-type-name"><?php echo esc_html( $post_type->label ); ?></h3>
+		<h4 class="post-type-name"><?php echo esc_html( $post_type->label ); ?></h4>
 		<ul class="meta-boxes">
 <?php $cnt = 1; foreach ( $headers as $header ) :
 	$checked = isset( $this->remove_meta_boxes[$post_type->name][$header] ) && $this->remove_meta_boxes[$post_type->name][$header] == '1' ? ' checked="checked"' : '';
