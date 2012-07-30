@@ -1,14 +1,14 @@
 <?php
 /**
  * @package Editor Templates
- * @version 0.0.6
+ * @version 0.0.7
  */
 /*
 Plugin Name: Editor Templates
 Plugin URI: http://editor-templates.warna.info/
 Description: 投稿タイプ毎に専用の投稿テンプレートを作成できます。
 Author: jim912
-Version: 0.0.6
+Version: 0.0.7
 Author URI: http://www.warna.info/
 */
 
@@ -124,7 +124,7 @@ class editor_template {
 	function update_process_post_meta( $post_id, $post ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE && ! (int)$post_id ) { return; }
 	
-		if ( in_array( $post->post_status, array( 'draft', 'pending', 'publish', 'protected', 'future' ) ) ) {
+		if ( in_array( $post->post_status, array( 'draft', 'pending', 'publish', 'protected', 'future', 'private' ) ) ) {
 			$post_custom = get_post_custom( (int)$post_id );
 			
 			$post_data = stripslashes_deep( $_POST );

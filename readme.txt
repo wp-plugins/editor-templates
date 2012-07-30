@@ -2,8 +2,8 @@
 Contributors: jim912
 Tags: edit, post, page, template 
 Requires at least: 3.3
-Tested up to: 3.4
-Stable tag: 0.0.6
+Tested up to: 3.4.1
+Stable tag: 0.0.7
 
 You can customize the editing page by templates like themes.
 
@@ -20,6 +20,9 @@ You can customize the editing page by templates like themes.
  - Sample template file is bundled in plugin's "template-sample" directory.
 
 == Changelog ==
+* **0.0.7**
+ * fixed : post meta doesn't update in private post
+
 * **0.0.6**
  * fixed : template tag "tpl_custom" dosn't save input data when pending status selected.
 
