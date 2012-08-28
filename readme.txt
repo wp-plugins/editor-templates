@@ -3,7 +3,7 @@ Contributors: jim912
 Tags: edit, post, page, template 
 Requires at least: 3.3
 Tested up to: 3.4.1
-Stable tag: 0.0.7
+Stable tag: 0.0.8
 
 You can customize the editing page by templates like themes.
 
@@ -20,6 +20,11 @@ You can customize the editing page by templates like themes.
  - Sample template file is bundled in plugin's "template-sample" directory.
 
 == Changelog ==
+* **0.0.8**
+ * new  : support {post_type}-{post_name} template
+ * new  : support {post_type}-{post_name} css
+ * new  : support {post_type}-{post_name} javascript
+
 * **0.0.7**
  * fixed : post meta doesn't update in private post
 
