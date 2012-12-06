@@ -7,7 +7,13 @@
 		jQuery( this ).click( function(){
 			window.send_to_editor = function( html ) {
 				if ( html.match( /<img / ) ) {
-					id = jQuery( 'img', html ).attr( 'class' ).match( /wp-image-\d{1,}/ );
+					if ( jQuery( html ).is( 'a' ) ) {
+						var img_obj = jQuery( 'img', html );							
+					} else {
+						var img_obj = jQuery( html );							
+					}		
+					id = img_obj.attr( 'class' ).match( /wp-image-\d{1,}/ );
+//					id = jQuery( 'img', html ).attr( 'class' ).match( /wp-image-\d{1,}/ );
 				} else {
 					id = html.match( / class=\"wp-media-\d{1,}/ );
 					id = id.toString().slice(8);
@@ -34,13 +40,17 @@
 				tb_remove();
 			}
 			formfield = jQuery('#'+rel).attr('name');
-			tb_show(null, 'media-upload.php?post_id=0&type=image&TB_iframe=true');
+			var post_id = jQuery('#post_ID').val();
+			if( isNaN( post_id ) ){
+				post_id = 0 ;
+			}
+			tb_show(null, '/wp-admin/media-upload.php?post_id='+post_id+'&type=image&tab=type&TB_iframe=true');
 			return false;
 		});
 	});
 	
 	// setup visual editor
-	jQuery('#post_meta_box a.thickbox').each(function(){
+	jQuery('#post_editor_box a.thickbox').each(function(){
 		jQuery(this).click(function(){
 			window.send_to_editor = send;
 		});

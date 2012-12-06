@@ -4,8 +4,9 @@ Plugin Name: Editor Templates
 Plugin URI: http://editor-templates.warna.info/
 Description: 投稿タイプ毎に専用の投稿テンプレートを作成できます。
 Author: Hitoshi Omagari
-Version: 0.0.8
+Version: 0.0.9
 Author URI: http://www.warna.info/
+Thanks to : Wangbin
 */
 
 class editor_template {
@@ -42,6 +43,8 @@ class editor_template {
 
 			$this->remove_meta_boxes = get_option( 'template_remove_meta_boxes', array() );
 			$this->latout_fixed = get_option( 'template_latout_fixed', array() );
+			
+			load_plugin_textdomain( 'editor-templates', false, plugin_basename( dirname( __FILE__ ) ) . '/languages' );
 		}
 	}
 	
@@ -64,7 +67,7 @@ class editor_template {
 		}
 
 		$template_dir_order = array(
-			array( 'dir' => EDITOR_TEMPLATE_DIR, 'url' => WP_CONTENT_URL . '/editor-templates/' )
+			array( 'dir' => EDITOR_TEMPLATE_DIR, 'url' => WP_CONTENT_URL . '/editor-templates' )
 		);
 		
 		if ( is_multisite() ) {
@@ -78,9 +81,11 @@ class editor_template {
 		}
 
 		$file_name_order = array(
-			$post_type . '-' . $post->post_name,
 			$post_type
 		);
+		if ( is_object( $post ) ) {
+			array_unshift( $file_name_order, $post_type . '-' . $post->post_name );
+		}
 
 		foreach ( $template_dir_order as $template_dir ) {
 			foreach ( $file_name_order as $file_name ) {
@@ -162,12 +167,15 @@ class editor_template {
 							}
 						}
 					} else {
-						foreach ( $_POST['post_custom'][$meta_key] as $val ) {
-							add_post_meta( (int)$post_id, $meta_key, $val );
+						foreach ( $post_meta as $val ) {
+							add_post_meta( (int)$post_id, $meta_key, addslashes( $val ) );
 						}
 					}
 				} else {
-					update_post_meta( (int)$post_id, $meta_key, $_POST['post_custom'][$meta_key] );
+					delete_post_meta( (int)$post_id, $meta_key );
+					if ( $post_meta != '' ) {
+						add_post_meta( (int)$post_id, $meta_key, addslashes( $post_meta ) );
+					}
 				}
 			}
 		}
@@ -337,7 +345,7 @@ class editor_template {
 			<li>
 				<label for="latout_fixed-<?php echo esc_attr( $post_type->name ); ?>">
 					<input type="checkbox" name="latout_fixed[<?php echo esc_attr( $post_type->name ); ?>]" id="latout_fixed-<?php echo esc_attr( $post_type->name ); ?>" value="1"<?php echo $checked; ?> />
-					<?php printf( __( '%s edit page : 1 column layout.' ), esc_html( $post_type->labels->singular_name ) ); ?>
+					<?php printf( __( '%s edit page : 1 column layout.', 'editor-templates' ), esc_html( $post_type->labels->singular_name ) ); ?>
 				</label>
 			</li>
 <?php endforeach; ?> 
@@ -618,7 +626,7 @@ function tpl_ping_open( $args ) {
 function tpl_custom( $args = array() ) {
 	global $post, $editor_template;
 
-	if ( ( ! isset( $editor_template->remove_meta_boxes[$post->post_type]['custom-fields'] ) || $editor_template->remove_meta_boxes[$post->post_type]['custom-fields'] != '1' ) && post_type_supports( $post->post_type, 'custom-fields' ) ) { return; }
+	if ( ! apply_filters( 'force_tpl_custom', false ) && ( ! isset( $editor_template->remove_meta_boxes[$post->post_type]['custom-fields'] ) || $editor_template->remove_meta_boxes[$post->post_type]['custom-fields'] != '1' ) && post_type_supports( $post->post_type, 'custom-fields' ) ) { return; }
 	$defaults = array(
 		'type'			=> 'text',
 		'label'			=> __( 'Order' ),
