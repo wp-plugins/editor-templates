@@ -4,7 +4,7 @@ Plugin Name: Editor Templates
 Plugin URI: http://editor-templates.warna.info/
 Description: 投稿タイプ毎に専用の投稿テンプレートを作成できます。
 Author: Hitoshi Omagari
-Version: 0.0.9
+Version: 0.1.0
 Author URI: http://www.warna.info/
 Thanks to : Wangbin
 */

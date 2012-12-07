@@ -40,11 +40,13 @@
 				tb_remove();
 			}
 			formfield = jQuery('#'+rel).attr('name');
+
 			var post_id = jQuery('#post_ID').val();
-			if( isNaN( post_id ) ){
-				post_id = 0 ;
-			}
-			tb_show(null, '/wp-admin/media-upload.php?post_id='+post_id+'&type=image&tab=type&TB_iframe=true');
+//			if( isNaN( post_id ) ){
+//				post_id = 0 ;
+//			}
+			tb_show( null, 'media-upload.php?post_id=0&type=image&TB_iframe=true' );
+//			tb_show( null, 'media-upload.php?post_id='+post_id+'&type=image&tab=type&TB_iframe=true' );
 			return false;
 		});
 	});
