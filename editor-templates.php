@@ -4,7 +4,7 @@ Plugin Name: Editor Templates
 Plugin URI: http://editor-templates.warna.info/
 Description: 投稿タイプ毎に専用の投稿テンプレートを作成できます。
 Author: Hitoshi Omagari
-Version: 0.1.0
+Version: 0.1.1
 Author URI: http://www.warna.info/
 Thanks to : Wangbin
 */
@@ -90,6 +90,10 @@ class editor_template {
 		foreach ( $template_dir_order as $template_dir ) {
 			foreach ( $file_name_order as $file_name ) {
 				if ( file_exists( $template_dir['dir'] . '/' . $file_name . '.php' ) ) {
+					$file_content = file_get_contents( $template_dir['dir'] . '/' . $file_name . '.php' );
+					if ( preg_match( '/[\s]+tpl_post_thumbnail[\s]*\(/', $file_content ) ) {
+						add_filter( 'media_view_settings', array( &$this, 'media_view_settings' ), 10, 2 );
+					}
 					define( 'EDITOR_CSS_DIR', $template_dir['dir'] . '/css' );
 					define( 'EDITOR_CSS_URL', $template_dir['url'] . '/css' );
 					define( 'EDITOR_JS_DIR', $template_dir['dir']. '/js' );
@@ -444,6 +448,13 @@ class editor_template {
 	function add_media_class( $html, $send_id, $attachment ) {
 		$html = str_replace( " href='", ' class="wp-media-' . $send_id . "\" href='", $html );
 		return $html;
+	}
+	
+	
+	function media_view_settings( $settings, $post ) {
+		$featured_image_id = get_post_meta( $post->ID, '_thumbnail_id', true );
+		$settings['post']['featuredImageId'] = $featured_image_id ? $featured_image_id : -1;
+		return $settings;
 	}
 
 } // class end

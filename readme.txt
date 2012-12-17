@@ -3,7 +3,7 @@ Contributors: jim912
 Tags: edit, post, page, template 
 Requires at least: 3.3
 Tested up to: 3.4.2
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 
 You can customize the editing page by templates like themes.
 
@@ -20,12 +20,15 @@ You can customize the editing page by templates like themes.
  - Sample template file is bundled in plugin's "template-sample" directory.
 
 == Changelog ==
+* **0.1.1**
+ * fixed : tpl_post_thumbnail doesn't work in WordPress 3.5
+
 * **0.1.0**
- * fixes : upload.js tickbox url bug
+ * fixed : upload.js tickbox url bug
 
 * **0.0.9**
  * fixed : css & js url
- * fixes : refine upload.js
+ * fixed : refine upload.js
  * new  : Multi language support.
 
 * **0.0.8**
