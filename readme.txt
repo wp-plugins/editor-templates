@@ -2,8 +2,8 @@
 Contributors: jim912
 Tags: edit, post, page, template 
 Requires at least: 3.3
-Tested up to: 3.4.2
-Stable tag: 0.1.1
+Tested up to: 3.5.1
+Stable tag: 0.1.2
 
 You can customize the editing page by templates like themes.
 
@@ -20,6 +20,9 @@ You can customize the editing page by templates like themes.
  - Sample template file is bundled in plugin's "template-sample" directory.
 
 == Changelog ==
+* **0.1.2**
+ * fixed : tpl_custom tag output invalid option element.
+
 * **0.1.1**
  * fixed : tpl_post_thumbnail doesn't work in WordPress 3.5
 

@@ -4,7 +4,7 @@ Plugin Name: Editor Templates
 Plugin URI: http://editor-templates.warna.info/
 Description: 投稿タイプ毎に専用の投稿テンプレートを作成できます。
 Author: Hitoshi Omagari
-Version: 0.1.1
+Version: 0.1.2
 Author URI: http://www.warna.info/
 Thanks to : Wangbin
 */
@@ -704,7 +704,7 @@ function tpl_custom( $args = array() ) {
 		foreach ( $atts['items'] as $key => $label ) {
 			$value = is_int( $key ) ? $label : $key;
 			$selected = isset( $post_customs[$atts['meta_key']] ) && $post_customs[$atts['meta_key']][0] == $value ? ' selected="selected"' : '';
-			$html .= '<option id="' . esc_attr( $id ) . '-' . $cnt . '" value="' . esc_attr( $value ) . '"' . $selected . ' />' . esc_html( $label ) . "</option>\n";
+			$html .= '<option id="' . esc_attr( $id ) . '-' . $cnt . '" value="' . esc_attr( $value ) . '"' . $selected . '>' . esc_html( $label ) . "</option>\n";
 			$cnt++;
 		}
 		$html .= "</select>\n";
